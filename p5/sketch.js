@@ -1,6 +1,6 @@
 // Keep track of our socket connection
 var socket;
-var show;
+var content;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -23,14 +23,14 @@ function setup() {
 
   socket.on('body', function (data) {
     console.log("Received: " + data)
-    show = data;
+    content = data;
   });
-  show = "empty";
+  content = "empty";
 }
 
 function draw() {
   background(255);
-  text("there is: " + show, 10, 10, windowWidth/2, windowHeight/2);
+  text("there is: " + content, 10, 10, windowWidth/2, windowHeight/2);
 }
 
 function mouseDragged() {
