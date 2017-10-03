@@ -1,5 +1,5 @@
 //	run following in terminal:
-//  $ cd Dropbox/works_cur/how_to_put_on_a_sock/process/polling2
+//  $ cd Dropbox/works_cur/how_to_put_on_a_sock/sock_polling
 //	$ nodemon index.js
 //
 // 	[example]
@@ -18,6 +18,9 @@
 //  https://socket.io/docs/
 //  https://api.polleverywhere.com/#authentication
 // 
+//	connecting p5.js,-node.js,-socket.io:
+//	https://github.com/processing/p5.js/wiki/p5.js,-node.js,-socket.io
+//
 //	visualization tools:
 // 	https://p5js.org/
 // 	https://d3js.org/
@@ -33,6 +36,8 @@ var express = require('express');
 var app = require('express')();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
+var url = require('url');
+var path = require('path');
 
 var key = "joycewang783";
 var secret = "howtoputonasock";
@@ -45,8 +50,41 @@ app.get('/:type/:pollID', function(req, res){
 	type = req.params.type;
 
 	if (type == 'free_text_polls') {
+		// function callback(error, response, body) {
+	 //  		res.sendFile(__dirname + '/index.html');
+		// }
 		function callback(error, response, body) {
-	  		res.sendFile(__dirname + '/index.html');
+			var pathname = req.url;
+			//console.log(pathname);
+			if (pathname == '/free_text_polls/qIRzIUTRZNIC90O') {
+				pathname = '/index_p5.html';
+			}
+			if (pathname == '/free_text_polls/sketch.js') {
+				pollID = 'qIRzIUTRZNIC90O';
+				pathname = '/p5/sketch.js';
+			}
+			var ext = path.extname(pathname);
+			var typeExt = {
+				'.html': 'text/html',
+				'.js':   'text/javascript',
+				'.css':  'text/css'
+			};
+			var contentType = typeExt[ext] || 'text/plain';
+			fs.readFile(__dirname + pathname,
+			    // Callback function for reading
+			    
+			    function (err, data) {
+			      // if there is an error
+			      //console.log(__dirname + pathname);
+			      if (err) {
+			        res.writeHead(500);
+			        return res.end('Error loading ' + pathname);
+			      }
+			      // Otherwise, send the data, the contents of the file
+			      res.writeHead(200,{ 'Content-Type': contentType });
+			      res.end(data);
+			    }
+		  	);
 		}
 	}
 	if (type == 'multiple_choice_polls') {
@@ -55,19 +93,23 @@ app.get('/:type/:pollID', function(req, res){
 		}
 	}
 	if (type == 'p5') {
+
 		function callback(error, response, body) {
-			console.log("p5 woahhhhhh");
+			var pathname = req.url;
+			console.log(pathname);
+			if (pathname == '/p5/') {
+				pathname = '/index_p5.html';
+			}
+			var ext = path.extname(pathname);
 			var typeExt = {
 				'.html': 'text/html',
 				'.js':   'text/javascript',
 				'.css':  'text/css'
 			};
-			var pathname = '/index_p5.html';
-			var ext = path.extname(pathname);
 			var contentType = typeExt[ext] || 'text/plain';
 			fs.readFile(__dirname + pathname,
 			    // Callback function for reading
-			    console.log("p5 woahhhhhh again");
+			    
 			    function (err, data) {
 			      // if there is an error
 			      if (err) {
@@ -92,7 +134,7 @@ server.listen(port);
 
 io.on('connection', function(socket) {
 	setInterval(function(){
-
+		console.log(type + "/" + pollID);
 		var options = {
 			url: 'https://www.polleverywhere.com/'+ type + '/' + pollID + '/results',
 			headers: {
@@ -155,7 +197,9 @@ io.on('connection', function(socket) {
 									//"<br>Error: " + error + 
 									//"<br>Response: " + response + 
 									"<br><br>Body: " + text;
+
 				io.emit('body', text);
+				//console.log(text);
 		    }
 			
 		}

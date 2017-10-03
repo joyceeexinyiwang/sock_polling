@@ -1,10 +1,10 @@
 // Keep track of our socket connection
 var socket;
-var text;
+var show;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  background(200);
+  background(255);
   // Start a socket connection to the server
   // Some day we would run this server somewhere else
   socket = io.connect('http://localhost:3000');
@@ -23,18 +23,19 @@ function setup() {
 
   socket.on('body', function (data) {
     console.log("Received: " + data)
-    text = data;
+    show = data;
   });
+  show = "empty";
 }
 
 function draw() {
-  text("there is: " + text, 10, 10, 70, 80);
-  socket.emit('hey',"whatsup");
+  background(255);
+  text("there is: " + show, 10, 10, windowWidth/2, windowHeight/2);
 }
 
 function mouseDragged() {
   // Draw some white circles
-  fill(255);
+  fill(255,100);
   noStroke();
   ellipse(mouseX,mouseY,80,80);
   // Send the mouse coordinates
@@ -53,5 +54,5 @@ function sendmouse(xpos, ypos) {
   };
 
   // Send that object to the socket
-  socket.emit('mouse',data);
+  socket.emit('mouse', "hello");
 }
