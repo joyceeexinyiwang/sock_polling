@@ -30,7 +30,7 @@ function setup() {
 
 function draw() {
   background(255);
-  text("there is: " + content, 10, 10, windowWidth/2, windowHeight/2);
+  text("sketch.js \n" + content, 10, 10, windowWidth/2, windowHeight/2);
 }
 
 function mouseDragged() {

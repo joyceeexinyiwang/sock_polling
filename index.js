@@ -47,7 +47,9 @@ var type;
 var n = '0';
 
 app.get('/:n', function(req, res){
-	n = req.params.n;
+	if ((req.params.n).length == 1) {
+		n = req.params.n;
+	}
 
 	function callback(error, response, body) {
 		var pathname = req.url;
@@ -96,10 +98,18 @@ app.get('/:folder/:file/', function(req, res){
 			};
 			console.log("pathname: " + pathname);
 			var contentType = typeExt[ext] || 'text/plain';
-			if (n == 3) {
-				pathname = "/p5/sketch2.js";
 
+
+			switch(n) {
+			    case '2':
+			    	pathname = "/p5/sketch_mc.js";
+			    	break;
+			    case '3':
+			    	pathname = "/p5/sketch2.js";
+			    default:
+			    	break;
 			}
+
 			fs.readFile(__dirname + pathname,
 			    // Callback function for reading
 			    
@@ -142,7 +152,7 @@ io.on('connection', function(socket) {
 		    default:
 		    	break;
 		}
-		console.log("Looking up: " + n + " " + type + "/" + pollID);
+		console.log("Looking up: " + n + " " + 'https://www.polleverywhere.com/'+ type + '/' + pollID + '/results');
 		var options = {
 			url: 'https://www.polleverywhere.com/'+ type + '/' + pollID + '/results',
 			headers: {
@@ -157,38 +167,24 @@ io.on('connection', function(socket) {
 
 		    var text = "";
 		    if (type == "multiple_choice_polls") {
-
-		    	var A = 0;
-		    	var B = 0;
-		    	var C = 0;
-		    	var D = 0;
-
-		    	for(var attributename in info){
-			    	text += "<br>";
+				var result = {} ;
+			    for (var attributename in info){	
 			    	for(var key in info[attributename]){
 			    		if (key == "value") {
-			    			switch (info[attributename][key]){
-								case "Female":
-									A += 1;
-			    					break;
-								case "Male":
-									B += 1;
-			    					break;								
-			    				case "Non-binary":
-									C += 1;
-			    					break;								
-			    				case "Other":
-									D += 1;
-			    					break;
+			    			var choice = info[attributename][key];
+			    			if (!(choice in result)) {
+			    				result[choice] = 0;
 			    			}
+			    			var count = result[choice];
+			    			count = count + 1;
+			    			result[choice] = count;
 			    		}
 			    	}
 				}
-				io.emit('A', A);
-				io.emit('B', B);
-				io.emit('C', C);
-				io.emit('D', D);
-				io.emit('body', "A:" + A + " B: " + B + " C: " + C + "D: " + D);
+				var response = {};
+				response.number = n;
+				response.result = result;
+				io.emit('body', JSON.stringify(response));
 
 		    } else {
 			    for(var attributename in info){
@@ -221,4 +217,19 @@ io.on('connection', function(socket) {
     socket.on('disconnect', function() {
       console.log("Client has disconnected");
     });
+
+    socket.on('mouse',
+      function(data) {
+        // Data comes in as whatever was sent, including objects
+        console.log("Received: 'mouse' " + data);
+      
+        // Send it to all other clients
+        //socket.broadcast.emit('mouse', data);
+        
+      }
+    );
+
+
+
 });
+
