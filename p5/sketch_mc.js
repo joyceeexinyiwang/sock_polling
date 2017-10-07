@@ -1,3 +1,4 @@
+
 // Keep track of our socket connection
 var socket;
 var response_raw;
@@ -12,12 +13,19 @@ function setup() {
   // Some day we would run this server somewhere else
   socket = io.connect('http://localhost:3000');
   content = "empty";
+
   socket.on('body', function (data) {
     console.log("Received: " + data);
     response_raw = data;
     response = JSON.parse(response_raw);
     content = response.result;
     number = response.number;
+  });
+
+  
+  socket.on('redirect', function (data) {
+    console.log("Redirecting..." + data);
+    window.location.href = data;
   });
 } 
 
@@ -96,3 +104,4 @@ function mousePressed() {
   // Send that object to the socket
   socket.emit('mouse', instruction);
 }
+

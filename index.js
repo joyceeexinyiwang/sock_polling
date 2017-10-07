@@ -220,12 +220,8 @@ io.on('connection', function(socket) {
 
     socket.on('mouse',
       function(data) {
-        // Data comes in as whatever was sent, including objects
         console.log("Received: 'mouse' " + data);
-      
-        // Send it to all other clients
-        //socket.broadcast.emit('mouse', data);
-        
+      	io.emit("redirect", "http://localhost:3000/" + data)
       }
     );
 
