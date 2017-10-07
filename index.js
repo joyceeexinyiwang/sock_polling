@@ -1,14 +1,15 @@
 //	run following in terminal:
 //  $ cd Dropbox/works_cur/how_to_put_on_a_sock/sock_polling
 //	$ nodemon index.js
+
+//	[run show]
 //
-// 	[example]
-//	put in browser:
-//	using this web app: http://localhost:3000/free_text_polls/qIRzIUTRZNIC90O
-//	PE website: https://www.polleverywhere.com/free_text_polls/qIRzIUTRZNIC90O
-//
-//	using this web app: http://localhost:3000/multiple_choice_polls/2T50inzOqhv6uX6
-//	https://www.polleverywhere.com/multiple_choice_polls/2T50inzOqhv6uX6
+//	control which poll is active here:
+// 	https://docs.google.com/presentation/d/15OcKRKw1KgwglW8Xx-vwJbQPjgi14QvC04lkFezEjMo/edit#slide=id.g27bed586ac_0_42
+//  
+// 	start here:
+//	http://localhost:3000/free_text_polls/
+//	click left or right to go from poll to poll; click middle to refresh
 
 //  -------------------------------------------------------------------
 //
@@ -53,7 +54,6 @@ app.get('/:n', function(req, res){
 
 	function callback(error, response, body) {
 		var pathname = req.url;
-		console.log(pathname);
 		pathname = '/index_p5.html';
 		var ext = path.extname(pathname);
 		var typeExt = {
@@ -67,7 +67,6 @@ app.get('/:n', function(req, res){
 		    
 		    function (err, data) {
 		      // if there is an error
-		      console.log(__dirname + pathname);
 		      if (err) {
 		        res.writeHead(500);
 		        return res.end('Error loading ' + pathname);
@@ -99,15 +98,14 @@ app.get('/:folder/:file/', function(req, res){
 			console.log("pathname: " + pathname);
 			var contentType = typeExt[ext] || 'text/plain';
 
-
-			switch(n) {
-			    case '2':
-			    	pathname = "/p5/sketch_mc.js";
-			    	break;
-			    case '3':
-			    	pathname = "/p5/sketch2.js";
-			    default:
-			    	break;
+			if (parseInt(n) <= 1) {
+				pathname = "/p5/sketch_join.js";
+			} else {
+				if (type == "multiple_choice_polls") {
+					pathname = "/p5/sketch_mc.js";
+				} else {
+					pathname = "/p5/sketch_fr.js";
+				}
 			}
 
 			fs.readFile(__dirname + pathname,
@@ -127,7 +125,6 @@ app.get('/:folder/:file/', function(req, res){
 		  	);
 		}
 
-		console.log("\n");
 	}
 
 	request({}, callback);
@@ -140,19 +137,12 @@ server.listen(port);
 
 io.on('connection', function(socket) {
 	setInterval(function(){
-		switch(n) {
-		    case '1':
-				pollID = 'qIRzIUTRZNIC90O';
-				type = 'free_text_polls';
-		        break;
-		    case '2':
-		    	pollID = '2T50inzOqhv6uX6';
-		    	type = 'multiple_choice_polls';
-		    	break;
-		    default:
-		    	break;
-		}
-		console.log("Looking up: " + n + " " + 'https://www.polleverywhere.com/'+ type + '/' + pollID + '/results');
+		var i = parseInt(n);
+		var info = cues[i];
+		pollID = info.pollID;
+		type = info.type;
+
+		//console.log("Looking up: " + n + " " + 'https://www.polleverywhere.com/'+ type + '/' + pollID + '/results');
 		var options = {
 			url: 'https://www.polleverywhere.com/'+ type + '/' + pollID + '/results',
 			headers: {
@@ -165,7 +155,6 @@ io.on('connection', function(socket) {
 		function callback(error, response, body) {
 			var info = JSON.parse(body);
 
-		    var text = "";
 		    if (type == "multiple_choice_polls") {
 				var result = {} ;
 			    for (var attributename in info){	
@@ -184,26 +173,23 @@ io.on('connection', function(socket) {
 				var response = {};
 				response.number = n;
 				response.result = result;
+				response.question = cues[parseInt(n)].question;
 				io.emit('body', JSON.stringify(response));
 
 		    } else {
+		    	text = "";
 			    for(var attributename in info){
-			    	text += "<br>";
 			    	for(var key in info[attributename]){
 			    		if (key == "value") {
-			    			text += (info[attributename][key] + " ");
+			    			text += (info[attributename][key] + ";");
 			    		}
 			    	}
 				}
-
-				const result = "Poll ID: " + pollID + 
-									"<br>Type: " + type + 
-									//"<br>Error: " + error + 
-									//"<br>Response: " + response + 
-									"<br><br>Body: " + text;
-
-				io.emit('body', text);
-				console.log(text);
+				var response = {};
+				response.number = n;
+				response.result = text.split(";");
+				response.question = cues[parseInt(n)].question;
+				io.emit('body', JSON.stringify(response));
 		    }
 			
 		}
@@ -221,11 +207,127 @@ io.on('connection', function(socket) {
     socket.on('mouse',
       function(data) {
         console.log("Received: 'mouse' " + data);
-      	io.emit("redirect", "http://localhost:3000/" + data)
+      	io.emit("redirect", "http://localhost:3000/" + data);
+      	var i = parseInt(data);
+		var info = cues[i];
+		pollID = info.pollID;
+		type = info.type;
       }
     );
-
-
-
 });
 
+var cues = [
+	{
+		// index filler
+	},
+	{
+    	pollID:'2T50inzOqhv6uX6',
+    	type:'multiple_choice_polls',
+    	question: "Join",
+	},
+	{
+    	pollID:'2T50inzOqhv6uX6',
+    	type:'multiple_choice_polls',
+    	question: 'What is your gender?',
+	},
+	{
+		question:'What is your sexual orientation?',
+    	pollID:'9pyzInmwzatKPoA',
+    	type:'multiple_choice_polls',
+	},
+	{
+		question:'What is your home state?',
+    	pollID:'OGLrKg1ruzdzlDn',
+    	type:'free_text_polls',
+	},
+	{
+		question: 'Did you receive sex education in middle school?',
+    	pollID: 'Baq9vEbgZljNpWk',
+    	type: 'multiple_choice_polls',
+	},
+	{
+		question: 'Do you feel comfortable talking about sex with your friends?',
+    	pollID: 'PaxyY0KJLldGxqP',
+    	type: 'multiple_choice_polls',
+	},
+	{
+		question: 'Do you feel comfortable talking about sex with your parent(s)/guardian(s)?',
+    	pollID: 'A7qSa1EhF4L00cA',
+    	type: 'multiple_choice_polls',
+	},
+	{
+		question: 'Do you feel comfortable talking about sex here?',
+    	pollID: 'i7OivQYje2tc8Xa',
+    	type: 'multiple_choice_polls',
+	},
+	{
+		question: 'What does \"sexual and reproductive body parts and their functions\" mean to us?',
+    	pollID: 'YVleNpg64N6sGx9',
+    	type: 'free_text_polls',
+	},
+	{
+		question: 'Have you ever been in a relationship?',
+    	pollID: '',
+    	type: 'multiple_choice_polls',
+	},
+	{
+		question: 'Are you currently in a relationship? ',
+    	pollID: '',
+    	type: 'multiple_choice_polls',
+	},
+	{
+		question: 'Are you happy with your relationship status?',
+    	pollID: '',
+    	type: 'multiple_choice_polls',
+	},
+	{
+		question: 'Do you know a teen who has contracted HIV or another STI?',
+    	pollID: '',
+    	type: 'multiple_choice_polls',
+	},
+	{
+		question: 'Do you want to watch it?',
+    	pollID: '',
+    	type: 'multiple_choice_polls',
+	},
+	{
+		question: 'How comfortable would you be with talking with a sexual partner about condoms?',
+    	pollID: '',
+    	type: 'multiple_choice_polls',
+	},
+	{
+		question: 'How comfortable would you be with using a condom with a sexual partner?',
+    	pollID: '',
+    	type: 'multiple_choice_polls',
+	},
+	{
+		question: 'How comfortable would you be with talking to a sexual partner about what you are comfortable doing sexually?',
+    	pollID: '',
+    	type: 'multiple_choice_polls',
+	},
+	{
+		question: 'How comfortable would you be with talking to a sexual partner about what feels good to you?',
+    	pollID: '',
+    	type: 'multiple_choice_polls',
+	},
+	{
+		question: 'How comfortable would you be with saying \"no\" if someone tried to pressure you to do something sexually that you didn’t want to do?',
+    	pollID: '',
+    	type: 'multiple_choice_polls',
+	},
+	{
+		question: 'What are some ways of making condoms more pleasurable?',
+    	pollID: '',
+    	type: 'free_text_polls',
+	},
+	{
+		question: 'What should I do?',
+    	pollID: '',
+    	type: '',
+	},
+	{
+		question: 'Why?',
+    	pollID: '',
+    	type: '',
+	},
+]

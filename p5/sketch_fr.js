@@ -34,61 +34,26 @@ function draw() {
   background(255);
 
   // show question
+
   showQuestion();
 
-
   // show result
+  var show = "";
 
-  var n = Object.keys(content).length;
-  var totalWidth = windowWidth * 2 / 3;
-  var width = totalWidth / (n + n - 1);
-  var bottom = windowHeight * 3 / 4;
-
-  var i = 0;
-
-  // draw options A, B, C, D
-
-  for (var option in content){
-    var count = content[option]-1;
-    var height = count * 10;
-    var x = windowWidth/2 - totalWidth/2 + i * 2 * width;
-
-    fill(0);
-    textAlign(CENTER, TOP);
-    textSize(20);
-    text(option, x, bottom + 32, width, 40);
-
-    textSize(28);
-    var c = getColor(i);
-    fill(c)
-    text(String.fromCharCode(65+i), x, bottom + 36 + 28, width, 40);
-
-    i ++;
+  for (x in content) {
+    show += content[x] + "\n";
   }
 
-  // draw rectangles
+  fill(153,0,76);
+  textAlign(CENTER, TOP);
+  textSize(32);
+  text(show, windowWidth/2, windowHeight/4);
 
-  i = 0;
-  for (var option in content){
-    var count = content[option]-1;
-    var height = count * 10;
-    var x = windowWidth/2 - totalWidth/2 + i * 2 * width;
-
-    noStroke();
-    fill(255,182,193);
-    rect(x, bottom-height, width, height);
-
-    textAlign(CENTER, TOP);
-    textSize(20);
-    text(count, x, bottom-height-40, width, 40);
-
-    i++;
-  }
 
   fill(100);
   textAlign(LEFT, TOP);
   textSize(16);
-  text("sketch_ms.jc \n" + response_raw, 10, 10, windowWidth/2, windowHeight/2);
+  text("show \n" + response_raw, 10, 10, windowWidth/2, windowHeight/2);
 }
 
 function showQuestion() {
@@ -117,17 +82,3 @@ function mousePressed() {
   // Send that object to the socket
   socket.emit('mouse', instruction);
 }
-
-function getColor(i) {
-  var colors = [
-    color(255, 102, 102), 
-    color(102, 178, 255), 
-    color(102, 255, 178), 
-    color(255, 253, 104), 
-    color(255, 204, 153), 
-    color(155, 155, 255),
-  ];
-  return colors[i % colors.length];
-
-}
-
