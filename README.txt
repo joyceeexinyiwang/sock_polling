@@ -13,7 +13,7 @@ click left or right to go from poll to poll; click middle to refresh
 
 -------------------------------------------------------------------
 source code:
-
+https://github.com/joyceeexinyiwang/sock_polling
 
 -------------------------------------------------------------------
 references:
