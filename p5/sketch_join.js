@@ -17,7 +17,7 @@ function setup() {
 }
 
 function draw() {
-	text("To participate in sex ed, \nplease send \"JOYCEWANG783\" to 22333.", windowWidth/2, windowHeight/2);
+	text("To participate, \nplease send \"JOYCEWANG783\" to 22333.", windowWidth/2, windowHeight/2);
 }
 
 // send an int value for what page to redirect to

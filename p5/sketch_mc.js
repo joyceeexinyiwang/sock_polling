@@ -56,12 +56,12 @@ function draw() {
     fill(0);
     textAlign(CENTER, TOP);
     textSize(20);
-    text(option, x, bottom + 32, width, 40);
+    text(option, x, bottom + 32*2, width, 60);
 
     textSize(28);
     var c = getColor(i);
     fill(c)
-    text(String.fromCharCode(65+i), x, bottom + 36 + 28, width, 40);
+    text(String.fromCharCode(65+i), x, bottom + 28, width, 40);
 
     i ++;
   }
