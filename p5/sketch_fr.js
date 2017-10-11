@@ -44,6 +44,8 @@ function setup() {
 } 
 
 function draw() {
+  background(255);
+  showQuestion();
   if (millis() - time > 1500) {
     state = 1;
   }
@@ -53,12 +55,6 @@ function draw() {
 }
 
 function update() {
-    background(255);
-
-    // show question
-
-    showQuestion();
-
     // show result
     var show = "";
 
