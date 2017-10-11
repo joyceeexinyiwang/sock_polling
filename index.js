@@ -66,7 +66,7 @@ app.get('/:folder/:file/', function(req, res){
 			console.log("pathname: " + pathname);
 			var contentType = typeExt[ext] || 'text/plain';
 
-			if (parseInt(n) <= 1) {
+			if (parseInt(n) != NaN && parseInt(n) <= 1) {
 				pathname = "/p5/sketch_join.js";
 			} else {
 				if (type == "multiple_choice_polls") {
@@ -105,6 +105,10 @@ server.listen(port);
 
 io.on('connection', function(socket) {
 	setInterval(function(){
+		if (parseInt(n) == NaN || parseInt(n) < 1) {
+			console.log("parseInt(n) = " + parseInt(n));
+			return;
+		}
 		var i = parseInt(n);
 		var info = cues[i];
 		pollID = info.pollID;
@@ -141,6 +145,9 @@ io.on('connection', function(socket) {
 				var response = {};
 				response.number = n;
 				response.result = result;
+				if (parseInt(n) == NaN || parseInt(n) < 1) {
+					console.log("parseInt(n) = " + parseInt(n));
+				}
 				response.question = cues[parseInt(n)].question;
 				io.emit('body', JSON.stringify(response));
 
@@ -156,6 +163,9 @@ io.on('connection', function(socket) {
 				var response = {};
 				response.number = n;
 				response.result = text.split(";");
+				if (parseInt(n) == NaN || parseInt(n) < 1) {
+					console.log("parseInt(n) = " + parseInt(n));
+				}
 				response.question = cues[parseInt(n)].question;
 				io.emit('body', JSON.stringify(response));
 		    }
@@ -164,7 +174,7 @@ io.on('connection', function(socket) {
 
 		request(options, callback);
 
-	}, 500);
+	}, 100);
 	
 	console.log('Client connected');
     
@@ -175,11 +185,17 @@ io.on('connection', function(socket) {
     socket.on('mouse',
       function(data) {
         console.log("Received: 'mouse' " + data);
-      	io.emit("redirect", "http://localhost:3000/" + data);
-      	var i = parseInt(data);
-		var info = cues[i];
-		pollID = info.pollID;
-		type = info.type;
+      	if (parseInt(data) == null || parseInt(data) < 1) {
+			console.log("Woahhhh...mouse null");
+			return;
+		} else {
+			var i = parseInt(data);
+			var info = cues[i];
+			n = data;
+			pollID = info.pollID;
+			type = info.type;
+		}
+		io.emit("redirect", "http://localhost:3000/" + data);
       }
     );
 });
@@ -235,7 +251,7 @@ var cues = [
 	},
 	{
 		question: 'Have you ever been in a relationship?',
-    	pollID: '',
+    	pollID: 'jEGkNYTnGsDnq7F',
     	type: 'multiple_choice_polls',
 	},
 	{
