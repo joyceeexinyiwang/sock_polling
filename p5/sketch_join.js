@@ -37,8 +37,12 @@ function keyTyped() {
       } else if (keyCode == RIGHT_ARROW) {
         instruction = parseInt(number) + 1;
       } else if (keyCode == RETURN) {
-        instruction = parseInt(q);
-        q = "";
+        if (q != "") {
+          instruction = parseInt(q);
+          q = "";
+        } else {
+          instruction = parseInt(number)
+        }
       } 
       console.log("send instruction: " + instruction);
       // Send that object to the socket

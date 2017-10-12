@@ -129,8 +129,11 @@ io.on('connection', function(socket) {
 				console.log("Callback error...");
 				return;
 			}
-			
+
 			var info;
+			if (body == null) {
+				console.log("body is null");
+			}
 			try {
 				info = JSON.parse(body);
 			}
@@ -166,11 +169,11 @@ io.on('connection', function(socket) {
 		    } else {
 		    	text = "";
 			    for(var attributename in info){
-			    	for(var key in info[attributename]){
-			    		if (key == "value") {
-			    			text += (info[attributename][key] + ";");
-			    		}
-			    	}
+				    	for (var key in info[attributename]){
+				    		if (key == "value") {
+				    			text += (info[attributename][key] + ";");
+				    		}
+				    	}
 				}
 				var response = {};
 				response.number = n;
@@ -186,7 +189,7 @@ io.on('connection', function(socket) {
 
 		request(options, callback);
 
-	}, 100);
+	}, 2000);
 	
 	console.log('Client connected');
     
@@ -221,28 +224,28 @@ var cues = [
 	},
 	{
     	pollID:'2T50inzOqhv6uX6',
-    	type:'multiple_choice_polls',
+    	type:'free_text_polls',
     	question: "Join",
 	},
 	{
-    	pollID:'2T50inzOqhv6uX6',
-    	type:'multiple_choice_polls',
+    	pollID:'AAWzrf9op335tGR',
+    	type:'free_text_polls',
     	question: 'What is your gender?',
 	},
 	{
 		question:'What is your sexual orientation?',
-    	pollID:'9pyzInmwzatKPoA',
-    	type:'multiple_choice_polls',
+    	pollID:'AAWzrf9op335tGR',
+    	type:'free_text_polls',
 	},
 	{
 		question:'What is your home state?',
-    	pollID:'OGLrKg1ruzdzlDn',
+    	pollID:'AAWzrf9op335tGR',
     	type:'free_text_polls',
 	},
 	{
 		question: 'Did you receive sex education in middle school?',
-    	pollID: 'Baq9vEbgZljNpWk',
-    	type: 'multiple_choice_polls',
+    	pollID: 'AAWzrf9op335tGR',
+    	type: 'free_text_polls',
 	},
 	{
 		question: 'Do you feel comfortable talking about sex with your friends?',
