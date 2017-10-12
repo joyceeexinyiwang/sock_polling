@@ -1,7 +1,5 @@
 var number = '1';
 
-var q;
-
 function setup() {
 	socket = io.connect('http://localhost:3000');
 
@@ -10,8 +8,6 @@ function setup() {
 		window.location.href = data;
 	});
 
-	q = "";
-	
 	createCanvas(windowWidth, windowHeight);
 	background(255);
 	fill(0);
@@ -24,25 +20,21 @@ function draw() {
 	text("To participate, \nplease send \"JOYCEWANG783\" to 22333.", windowWidth/2, windowHeight/2);
 }
 
-function keyTyped() {
+// send an int value for what page to redirect to
+function mousePressed() {
 
-  console.log("received key: " + key + " " + (key+"").charCodeAt(0));
+  console.log("sendmouse: " + mouseX + " " + mouseY);
   
   var instruction;
-  if ((key+"").charCodeAt(0) >= 48 && (key+"").charCodeAt(0) <= 57) {
-      q = q + key;
+  if (mouseX < windowWidth/3) {
+    instruction = parseInt(number);
+  } else if (mouseX > windowWidth * 2/3) {
+    instruction = parseInt(number) + 1;
+
   } else {
-      if (keyCode == LEFT_ARROW) {
-        instruction = parseInt(number);
-      } else if (keyCode == RIGHT_ARROW) {
-        instruction = parseInt(number) + 1;
-      } else if (keyCode == RETURN) {
-        instruction = parseInt(q);
-        q = "";
-      } 
-      console.log("send instruction: " + instruction);
-      // Send that object to the socket
-      socket.emit('mouse', instruction);
-      state = 0;
+    instruction = parseInt(number);
   }
+
+  // Send that object to the socket
+  socket.emit('mouse', instruction);
 }
