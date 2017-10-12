@@ -8,6 +8,8 @@ var question;
 var state;
 var time;
 
+var q;
+
 function setup() {
   createCanvas(windowWidth, windowHeight);
   background(255);
@@ -17,6 +19,7 @@ function setup() {
   content = "empty";
   time = millis();
   state = 0;
+  q = "";
 
   socket.on('body', function (data) {
     console.log("Received: " + data);
@@ -84,21 +87,26 @@ function showQuestion() {
 }
 
 // send an int value for what page to redirect to
-function mousePressed() {
+function keyTyped() {
 
-  console.log("sendmouse: " + mouseX + " " + mouseY);
+  console.log("received key: " + key + " " + (key+"").charCodeAt(0));
   
   var instruction;
-  if (mouseX < windowWidth/3) {
-    instruction = parseInt(number) - 1;
-  } else if (mouseX > windowWidth * 2/3) {
-    instruction = parseInt(number) + 1;
-
+  if ((key+"").charCodeAt(0) >= 48 && (key+"").charCodeAt(0) <= 57) {
+      q = q + key;
   } else {
-    instruction = parseInt(number);
+      console.log("instructions...");
+      if (keyCode == LEFT_ARROW) {
+        instruction = parseInt(number) - 1;
+      } else if (keyCode == RIGHT_ARROW) {
+        instruction = parseInt(number) + 1;
+      } else if (keyCode == RETURN) {
+        instruction = parseInt(q);
+        q = "";
+      } 
+      console.log("send instruction: " + instruction);
+      // Send that object to the socket
+      socket.emit('mouse', instruction);
+      state = 0;
   }
-
-  // Send that object to the socket
-  socket.emit('mouse', instruction);
-  state = 0;
 }

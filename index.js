@@ -53,7 +53,7 @@ app.get('/:folder/:file/', function(req, res){
 	var folder = req.params.folder;
 
 	if (folder == 'p5') {
-		console.log("\nLoading p5 sketches...");
+		console.log("\nLoading p5 sketches...", end="");
 
 		function callback(error, response, body) {
 			var pathname = req.url;
@@ -66,7 +66,7 @@ app.get('/:folder/:file/', function(req, res){
 			console.log("pathname: " + pathname);
 			var contentType = typeExt[ext] || 'text/plain';
 
-			if (parseInt(n) != NaN && parseInt(n) <= 1) {
+			if (isNaN(parseInt(n)) || parseInt(n) <= 1) {
 				pathname = "/p5/sketch_join.js";
 			} else {
 				if (type == "multiple_choice_polls") {
@@ -105,8 +105,8 @@ server.listen(port);
 
 io.on('connection', function(socket) {
 	setInterval(function(){
-		if (parseInt(n) == NaN || parseInt(n) < 1) {
-			console.log("parseInt(n) = " + parseInt(n));
+		if (isNaN(parseInt(n)) || parseInt(n) < 1) {
+			//console.log("parseInt(n) = " + parseInt(n));
 			return;
 		}
 		var i = parseInt(n);
@@ -125,8 +125,20 @@ io.on('connection', function(socket) {
 		};
 
 		function callback(error, response, body) {
-			var info = JSON.parse(body);
-
+			if (error) {
+				console.log("Callback error...");
+				return;
+			}
+			
+			var info;
+			try {
+				info = JSON.parse(body);
+			}
+			catch(err) {
+			  	console.log("Parsing error..." + body);
+			  	return;
+			}
+			
 		    if (type == "multiple_choice_polls") {
 				var result = {} ;
 			    for (var attributename in info){	
@@ -145,7 +157,7 @@ io.on('connection', function(socket) {
 				var response = {};
 				response.number = n;
 				response.result = result;
-				if (parseInt(n) == NaN || parseInt(n) < 1) {
+				if (isNaN(parseInt(n))|| parseInt(n) < 1) {
 					console.log("parseInt(n) = " + parseInt(n));
 				}
 				response.question = cues[parseInt(n)].question;
@@ -163,7 +175,7 @@ io.on('connection', function(socket) {
 				var response = {};
 				response.number = n;
 				response.result = text.split(";");
-				if (parseInt(n) == NaN || parseInt(n) < 1) {
+				if (isNaN(parseInt(n))|| parseInt(n) < 1) {
 					console.log("parseInt(n) = " + parseInt(n));
 				}
 				response.question = cues[parseInt(n)].question;
@@ -185,8 +197,11 @@ io.on('connection', function(socket) {
     socket.on('mouse',
       function(data) {
         console.log("Received: 'mouse' " + data);
-      	if (parseInt(data) == null || parseInt(data) < 1) {
-			console.log("Woahhhh...mouse null");
+      	if (isNaN(parseInt(data))) {
+			console.log("Woahhhh...mouse wrong");
+			return;
+		} else if (parseInt(data) < 1 || parseInt(data) > 10) {
+			console.log("Question doesn't exist yet.");
 			return;
 		} else {
 			var i = parseInt(data);

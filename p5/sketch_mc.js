@@ -8,6 +8,8 @@ var question;
 var state;
 var time;
 
+var q;
+
 function setup() {
   createCanvas(windowWidth, windowHeight);
   background(255);
@@ -16,7 +18,9 @@ function setup() {
   socket = io.connect('http://localhost:3000');
   content = "empty";
   time = millis();
-  state = 0;
+  //state = 0;
+
+  q = "";
 
   socket.on('body', function (data) {
     console.log("Received: " + data);
@@ -26,7 +30,7 @@ function setup() {
     number = response.number;
     if (question != response.question) {
       time = millis();
-      state = 0;
+      //state = 0;
       question = response.question;
     }
   });
@@ -38,7 +42,7 @@ function setup() {
 
   socket.on('mouse',function (data) {
     console.log("paused");
-    state = 0;
+    //state = 0;
   });
 } 
 
@@ -46,11 +50,12 @@ function draw() {
   background(255);
   showQuestion();
   if (millis() - time > 1500) {
-    state = 1;
-  }
-  if (state == 1) {
+    //state = 1;
     update();
   }
+  //if (state == 1) {
+  //  update();
+  //}
 }
 
 function update() {
@@ -117,24 +122,28 @@ function showQuestion() {
   text("" + question, windowWidth/2-windowWidth*3/4/2, question_height, windowWidth*3/4, 200);
 }
 
-// send an int value for what page to redirect to
-function mousePressed() {
+function keyTyped() {
 
-  console.log("sendmouse: " + mouseX + " " + mouseY);
+  console.log("received key: " + key + " " + (key+"").charCodeAt(0));
   
   var instruction;
-  if (mouseX < windowWidth/3) {
-    instruction = parseInt(number) - 1;
-  } else if (mouseX > windowWidth * 2/3) {
-    instruction = parseInt(number) + 1;
-
+  if ((key+"").charCodeAt(0) >= 48 && (key+"").charCodeAt(0) <= 57) {
+      q = q + key;
   } else {
-    instruction = parseInt(number);
+      console.log("instruction.... ");
+      if (keyCode == LEFT_ARROW) {
+        instruction = parseInt(number) - 1;
+      } else if (keyCode == RIGHT_ARROW) {
+        instruction = parseInt(number) + 1;
+      } else if (keyCode == RETURN) {
+        instruction = parseInt(q);
+        q = "";
+      } 
+      console.log("send instruction: " + instruction);
+      // Send that object to the socket
+      socket.emit('mouse', instruction);
+      //state = 0;
   }
-
-  // Send that object to the socket
-  socket.emit('mouse', instruction);
-  state = 0;
 }
 
 function getColor(i) {
